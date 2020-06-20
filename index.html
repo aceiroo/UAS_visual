@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Temperature Converter</title>
+    <link rel="stylesheet" href="stylesheet.css">
+    <link rel="stylesheet" href="css\bootstrap.min.css">
+    <script src="js/bootstrap.js"></script>
+
+</head>
+
+<body>
+    <div class="container text-center">
+        <div class="row justify-content-center">
+            <div class="col-auto px-0">
+                <img class="" src="image.jpg" width="48" height="48">
+              </div>
+              <div class="col-auto px-1">
+                <h1  class="d-inline">Temperature Converter</h1>
+              </div>
+      
+    </div>
+        <br><br>
+        <form id="form" class="col-lg-6 offset-lg-3">
+            <label for="selectf">Select from</label><br>
+            <div class="form-group row justify-content-center">
+                <select id="fconversion" class="form-control" style="width:200px">
+                    <option value="celcius">Celsius</option>
+                    <option value="reamur">Reamur</option>
+                    <option value="farenheit">Farenheit</option>
+                </select>
+            </div><br>
+
+            <label for="selectt">To</label><br>
+            <div class="form-group row justify-content-center">
+                <select id="tconversion" class="form-control" style="width:200px">
+                    <option value="celcius">Celsius</option>
+                    <option value="reamur">Reamur</option>
+                    <option value="farenheit">Farenheit</option>
+                </select>
+            </div><br>
+
+            <label for="temperature">Input here</label><Br>
+            <div class="form-group row justify-content-center">
+                <input type="number" id="temp" class="form-control" style="width:200px">
+            </div><br>
+
+            <label for="temp">Result</label><br>
+            <div class="form-group row justify-content-center">
+                <input type="number" id="tempresult" class="form-control" style="width:200px" readonly>
+            </div><br>
+
+            <button type="submit" class="btn btn-dark">Convert</button>
+            <button  onclick="history()" class="btn btn-dark">history</button>
+        </form>
+        <table class="table table-bordered mt-5">
+            <thead>
+                <th scope="col">No</th>
+                <th scope="col">Dari Temperature</th>
+                <th scope="col">Suhu</th>
+                <th scope="col">Ke Temperature</th>
+                <th scope="col">Hasil</th>
+            </thead>
+            <tbody id="tableBody">
+
+            </tbody>
+        </table>
+    </div>
+    <br>
+    <hr>
+
+    <Script> 
+        tempid = document.getElementById('form')
+
+          
+        var mysql      = require('mysql');
+            var connection = mysql.createConnection({
+            host     : 'localhost',
+            user     : 'root',
+            password : '',
+            database : 'uas_electron'
+            });
+            
+
+        tempid.addEventListener('submit', event => {
+            event.preventDefault();
+
+            var selectf = document.getElementById('fconversion');
+            var selectt = document.getElementById('tconversion');
+           var  tempf = document.getElementById('temp').value;
+
+            if (selectf.value == 'celcius') {
+                if (selectt.value == 'celcius') {
+                    document.getElementById('tempresult').value = tempf;
+                }
+                else if (selectt.value == 'reamur') {
+                    ctor = (4 / 5) * tempf;
+                    document.getElementById('tempresult').value = ctor;
+                }
+                else if (selectt.value == 'farenheit') {
+                    ctof = (9 / 5) * tempf + 32;
+                    document.getElementById('tempresult').value = ctof;
+                }
+            } else if (selectf.value == 'reamur') {
+
+                if (selectt.value == 'celcius') {
+                    rtoc = tempf * 5 / 4;
+                    document.getElementById('tempresult').value = rtoc;
+                }
+                else if (selectt.value == 'reamur') {
+                    document.getElementById('tempresult').value = tempf;
+                }
+                else if (selectt.value == 'farenheit') {
+                    rtof = tempf * 9 / 4 + 32;
+                    document.getElementById('tempresult').value = rtof;
+                }
+            } else if (selectf.value == 'farenheit') {
+
+                if (selectt.value == 'celcius') {
+                    ftoc = (tempf - 32) * 5 / 9;
+                    document.getElementById('tempresult').value = ftoc;
+                }
+                else if (selectt.value == 'reamur') {
+                    ftor = (tempf - 32) * 4 / 9;
+                    document.getElementById('tempresult').value = ftor;
+                }
+                else if (selectt.value == 'farenheit') {
+                    document.getElementById('tempresult').value = tempf;
+                }
+            }
+
+            var hasil = document.getElementById('tempresult').value;
+            
+        
+            $sql = "INSERT INTO temperature (id, from_temp, value_from, to_temp, value_to) VALUES (NULL, '"+selectf.value+"', '"+tempf+"', '"+selectt.value+"', '"+hasil+"')";
+           
+
+            console.log($sql);
+
+            connection.query($sql);
+        
+        });
+
+        function history(){
+            
+            $sql2 = "SELECT * FROM temperature";
+
+            connection.query($sql2, function (error, results, fields) {
+             if (error) throw error;
+                console.log( );
+                let datahtml = '';
+                const tableBod = document.getElementById('tableBody');
+                for (let index = 0; index < results.length; index++) {
+                    datahtml += `<tr><td>${index+1}</td>
+                                <td>${results[index].from_temp}</td>
+                                <td>${results[index].value_from}</td>
+                                <td>${results[index].to_temp}</td>
+                                <td>${results[index].value_to}</td></tr>`;
+                }
+                tableBod.innerHTML = datahtml;
+
+                });
+                
+            
+        }
+     
+    </Script>
+</body>
+
+</html>
